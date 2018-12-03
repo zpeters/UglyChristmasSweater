@@ -1,9 +1,6 @@
-STA_SSID="ubnt"
-STA_PASS="monkey33082"
-AP_SSID="UglySweater"
-AP_PASS="1234"
 LED_PIN=17
 DELAY=100
+SOCKET=80
 
 function startup()
 	print("MCU Info")
@@ -16,41 +13,44 @@ function startup()
   gpio.mode(LED_PIN, gpio.OUTPUT)
   led_off(LED_PIN)
   blink(LED_PIN)
-  setup_sta()
   setup_ap()
-end
-
-
-function setup_sta()
-  cfg={}
-  cfg.ssid=STA_SSID
-  cfg.pwd=STA_PASS
-  wifi.startsta(cfg, sta_callback)
+  start_server()
 end
 
 function setup_ap()
-  cfg={}
-  cfg.ssid=AP_SSID
-  cfg.pwd=AP_PASS
-  wifi.startap(cfg, ap_callback)
+  cfg={ssid='WiFiMCU_SoftAP',pwd=''}
+  wifi.startap(cfg, function(info) ap_callback(info); end)
+  cfg=nil
+  blink(LED_PIN)
+  blink(LED_PIN)
+end
+
+function start_server()
+  skt=net.new(net.TCP,net.SERVER)
+  net.on(skt,'receive', function(c,d) receive(c,d); end)
+  net.start(skt,SOCKET)
+  blink(LED_PIN)
+  blink(LED_PIN)
+end
+
+function receive(c, d)
+  net.send(c, [[HTTP/1.1 200 OK\r\nServer: UglyChristmasSweater\r\nContent-Type: text/html\r\n\r\n]])
+  if string.find(d, "/xmas") then
+    net.send(c, [[You Found it]])
+  else
+    net.send(c, [[<h1>HELLO WORLD</h1><a href="/xmas">xmas lights</a>]])
+  end
+
+
+  net.close(c)
 end
 
 function ap_callback(info)
-  blink(LED_PIN)
-  blink(LED_PIN)
-  blink(LED_PIN)
-  blink(LED_PIN)
-  blink(LED_PIN)
-  blink(LED_PIN)
-  blink(LED_PIN)
-  blink(LED_PIN)
-end
-
-function sta_callback(info)
-  blink(LED_PIN)
-  blink(LED_PIN)
-  blink(LED_PIN)
-  blink(LED_PIN)
+  if info == 'AP_UP' then
+    led_on(LED_PIN)
+  else
+    blink(LED_PIN)
+  end
 end
 
 function led_on(pin)
