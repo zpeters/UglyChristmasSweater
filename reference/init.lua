@@ -2,12 +2,20 @@
 SOCKET=80
 SSID="Nerd Sweater"
 PWD=""
-PINS = {2,3,4}
+
 
 function boot()
-  print("Booting...")
-  math.randomseed(tmr.tick())
-  setup_pins(PINS)
+	print("MCU Info")
+	print("Version: " .. mcu.info())
+	print("Mem: " .. mcu.mem())
+	print("Chip ID: " .. mcu.chipid())
+	print("Boot reason: " .. mcu.bootreason())
+  print("SSID: '" .. SSID .. "'")
+  print("Password: '" .. PWD .. "'")
+	print("")
+  gpio.mode(2, gpio.OUTPUT)
+  gpio.mode(3, gpio.OUTPUT)
+  gpio.mode(4, gpio.OUTPUT)
   setup_ap(SSID,PWD)
   print("Starting server: " .. wifi.ap.getip() .. ":" .. SOCKET)
   print(wifi.ap.getipadv())
@@ -31,12 +39,6 @@ function ap_callback(info)
 end
 
 -- LED functions
-function setup_pins(pins)
-  for _,v in ipairs(pins) do
-    gpio.mode(v, gpio.OUTPUT)
-  end
-end
-
 function led_on(pin)
   gpio.write(pin, gpio.HIGH)
 end
@@ -45,48 +47,12 @@ function led_off(pin)
   gpio.write(pin, gpio.LOW)
 end
 
-function blink(pin, delay)
+function blink(pin)
+  tmr.delayms(100)
   led_on(pin)
-  tmr.delayms(delay)
+  tmr.delayms(100)
   led_off(pin)
 end
-
-function blink_pins(pins)
-  rand_pins = shuffle(pins)
-  for _,v in ipairs(rand_pins)  do
-    d = math.random(30,300)
-    blink(v, d)
-  end
-end
-
-function blink_pattern(pins)
-  for i=1,10 do
-    blink_pins(pins)
-  end
-end
-
--- Misc Functions
-function shuffle(array)
-  -- fisher-yates
-  local output = { }
-  local random = math.random
-  
-  for index = 1, #array do
-    local offset = index - 1
-    local value = array[index]
-    local randomIndex = offset*random()
-    local flooredIndex = randomIndex - randomIndex%1
-
-    if flooredIndex == offset then
-      output[#output + 1] = value
-    else
-      output[#output + 1] = output[flooredIndex + 1]
-      output[flooredIndex + 1] = value
-    end
-  end
-  return output
-end
-
 
 -- Sever Functions
 function start_server()
@@ -100,7 +66,16 @@ function receive(c,d)
 
   if string.find(d, "/xmas") then
     page = xmas()
-    blink_pattern(PINS)
+    blink(2)
+    blink(2)
+    blink(2)
+    blink(3)
+    blink(3)
+    blink(3)
+    blink(4)
+    blink(4)
+    blink(4)
+    blink(4)
   else
     page = index()
   end
