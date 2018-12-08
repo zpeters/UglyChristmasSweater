@@ -1,6 +1,6 @@
 -- Settings
 SOCKET=80
-SSID="Nerd Sweater"
+SSID="UglyChristmasSweater"
 PWD=""
 PINS = {2,3,4}
 
@@ -60,7 +60,7 @@ function blink_pins(pins)
 end
 
 function blink_pattern(pins)
-  for i=1,10 do
+  for i=1,15 do
     blink_pins(pins)
   end
 end
@@ -70,7 +70,7 @@ function shuffle(array)
   -- fisher-yates
   local output = { }
   local random = math.random
-  
+
   for index = 1, #array do
     local offset = index - 1
     local value = array[index]
@@ -117,12 +117,12 @@ function header(conn)
 end
 
 function index(conn)
-  page = [[<h1>Click Me</h1><a href="/xmas">XMAS</a>]]
+  page = [[<font size="10px;">🎄🎄</font> <a href="/xmas">MERRY CHRISTMAS</a> <font size="10px;">🎄🎄</font>]]
   return page
 end
 
 function xmas(conn)
-  page = [[<h1>XMAS</h1>]]
+  page = [[<font size="10px;">🎅🎅🎶🎶 Merry Christmas🎄🎄🌟🌟</font>]]
   return page
 end
 
