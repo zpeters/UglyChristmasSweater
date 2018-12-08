@@ -2,12 +2,16 @@
 SOCKET=80
 SSID="UglyChristmasSweater"
 PWD=""
-PINS = {2,3,4}
+SPEAKER = 5
+PINS = {7,8,9,10,11,12}
 
 function boot()
   print("Booting...")
   math.randomseed(tmr.tick())
   setup_pins(PINS)
+  -- setup speaker
+  gpio.mode(5, gpio.OUTPUT)
+  gpio.write(5, gpio.LOW)
   setup_ap(SSID,PWD)
   print("Starting server: " .. wifi.ap.getip() .. ":" .. SOCKET)
   print(wifi.ap.getipadv())
@@ -35,6 +39,12 @@ function setup_pins(pins)
   for _,v in ipairs(pins) do
     gpio.mode(v, gpio.OUTPUT)
   end
+end
+
+function trigger()
+  gpio.write(5, gpio.HIGH)
+  tmr.delayms(1000)
+  gpio.write(5, gpio.LOW)
 end
 
 function led_on(pin)
@@ -100,6 +110,7 @@ function receive(c,d)
 
   if string.find(d, "/xmas") then
     page = xmas()
+    trigger()
     blink_pattern(PINS)
   else
     page = index()
