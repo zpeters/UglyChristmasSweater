@@ -1,9 +1,8 @@
---- Settings
-LED_PIN=17
-DELAY=100
+-- Settings
 SOCKET=80
-SSID="WiFiMCU_SoftAP"
+SSID="Nerd Sweater"
 PWD=""
+
 
 function boot()
 	print("MCU Info")
@@ -11,40 +10,32 @@ function boot()
 	print("Mem: " .. mcu.mem())
 	print("Chip ID: " .. mcu.chipid())
 	print("Boot reason: " .. mcu.bootreason())
+  print("SSID: '" .. SSID .. "'")
+  print("Password: '" .. PWD .. "'")
 	print("")
-  gpio.mode(LED_PIN, gpio.OUTPUT)
-  led_off(LED_PIN)
-  blink(LED_PIN)
-  print("Setting up local AP '" .. SSID .. "'")
-  print("Password '" .. PWD .. "'")
   setup_ap(SSID,PWD)
   print("Starting server: " .. wifi.ap.getip() .. ":" .. SOCKET)
   print(wifi.ap.getipadv())
   start_server()
 end
 
--- AP Functions --
+-- AP Functions
 function setup_ap(ssid, pwd)
+  print("Setting up AP...")
   -- Config
   cfg={}
   cfg.ssid=ssid
   cfg.pwd=pwd
   cfg.retry_interval=2000
-
   -- Setup
   wifi.startap(cfg, function(info) ap_callback(info); end)
-  blink(LED_PIN)
-  blink(LED_PIN)
 end
 
 function ap_callback(info)
-  if info == 'AP_UP' then
-    led_on(LED_PIN)
-  else
-    blink(LED_PIN)
-  end
+  print("AP Callback: " .. info)
 end
--- LED Functions --
+
+-- LED functions
 function led_on(pin)
   gpio.write(pin, gpio.LOW)
 end
@@ -54,48 +45,53 @@ function led_off(pin)
 end
 
 function blink(pin)
-  tmr.delayms(DELAY)
+  tmr.delayms(100)
   led_on(pin)
-  tmr.delayms(DELAY)
+  tmr.delayms(100)
   led_off(pin)
 end
--- Server Functions --
+
+-- Sever Functions
 function start_server()
   skt=net.new(net.TCP,net.SERVER)
-  net.on(skt,'receive', function(c,d) receive(c,d); end)
+  net.on(skt, 'receive', function(c,d) receive(c,d); end)
   net.start(skt,SOCKET)
-  blink(LED_PIN)
-  blink(LED_PIN)
 end
 
-function header(conn)
-  net.send(conn, [[HTTP/1.1 200 OK\r\nServer: UglyChristmasSweater\r\nContent-Type: text/html\r\n\r\n]])
-end
+function receive(c,d)
+  h = header()
 
--- Pages
-function index()
-  page = [[<html> <head><title>Ugly Christmas Shirt</title</head> <body> <h1>HELLO WORLD</h1> <a href="/xmas">xmas lights</a> </body> </html>]]
-  return page
-end
-
-function xmas()
-  page = [[
-    You found it
-    ]]
-  return page
-end
-
--- "Router"
-function receive(c, d)
-  header()
   if string.find(d, "/xmas") then
-    net.send(c, xmas())
+    page = xmas()
+    blink(17)
+    blink(17)
+    blink(17)
+    blink(17)
   else
-    net.send(c, index())
+    page = index()
   end
 
+  resp = h .. page
+  print("Response " .. resp)
+  net.send(c, resp)
   net.close(c)
 end
 
---- Boot
+function header(conn)
+  hdr = [[HTTP/1.1 200 OK\r\n\Server: UglyChristmasSweater\r\nContent-Type: text/html\r\n\r\n]]
+  return hdr
+end
+
+function index(conn)
+  page = [[<h1>Click Me</h1><a href="/xmas">XMAS</a>]]
+  return page
+end
+
+function xmas(conn)
+  page = [[<h1>XMAS</h1>]]
+  return page
+end
+
+
+-- Boot
 boot()
