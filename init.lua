@@ -9,6 +9,7 @@ function boot()
   print("Booting...")
   math.randomseed(tmr.tick())
   setup_pins(PINS)
+  knight_rider(PINS)
   -- setup speaker
   gpio.mode(5, gpio.OUTPUT)
   gpio.write(5, gpio.LOW)
@@ -38,6 +39,29 @@ end
 function setup_pins(pins)
   for _,v in ipairs(pins) do
     gpio.mode(v, gpio.OUTPUT)
+  end
+end
+
+
+function knight_rider(pins)
+  local delay = 40
+  for i=1,3,1 do
+    for _,v in ipairs(pins) do
+      led_on(v)
+      tmr.delayms(delay)
+    end
+    for _,v in ipairs(pins) do
+      led_off(v)
+      tmr.delayms(delay)
+    end
+    for i = #pins, 1, -1 do
+      led_on(pins[i])
+      tmr.delayms(delay)
+    end
+    for i = #pins, 1, -1 do
+      led_off(pins[i])
+      tmr.delayms(delay)
+    end
   end
 end
 
