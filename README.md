@@ -1,4 +1,6 @@
 # Ugly Christmas Sweater
+<a href="https://www.gnu.org/licenses/gpl-3.0.en.html"><img src="https://www.gnu.org/graphics/gplv3-127x51.png"></a>
+
 The Ugly Chrismas Sweater is my attempt to win the 2018 Ugly Chrismas Sweater contest at [work](http://bcianswers.com)
 
 UCS is based on a WifiMCU (EMW3165) board. WifiMCU is a fun platform that runs [eLua](https://github.com/elua/elua)!!
